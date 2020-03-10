@@ -1,3 +1,5 @@
+List of charts:
+
 1. [dc.js] barchart with multiple colors and clickable legend
 2. [dc.js] stacked bar chart with range chart
 3. [dc.js] bubble chart
@@ -9,3 +11,4 @@
 9. [dc.js, d3.js] interactivity between dc.js charts and d3.js charts(horizontal stack and treemap)
 10. [dc.js] scatter plot with description on click
 11. [dc.js] generic timeseries chart with clickable legend with data
+12. [d3.js] guage with colorcoded description
