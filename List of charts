@@ -1,0 +1,11 @@
+1. [dc.js] barchart with multiple colors and clickable legend
+2. [dc.js] stacked bar chart with range chart
+3. [dc.js] bubble chart
+4. [dc.js, vuejs] Timeseries with range chart, clickable legend and filters
+5. [d3.js] bar chart and pie chart with interactivity and hierarchy
+6. [dc.js] interactive bubble charts
+7. [c3.js] pareto chart with bootstrap dropdown filters
+8. [d3.js] bubble chart and heatmap with bootstrap dropdown filters
+9. [dc.js, d3.js] interactivity between dc.js charts and d3.js charts(horizontal stack and treemap)
+10. [dc.js] scatter plot with description on click
+11. [dc.js] generic timeseries chart with clickable legend with data
