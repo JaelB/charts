@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Top Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.2/crossfilter.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.js" charset="utf-8"></script>
+
+    <style>
+      .dc-chart g.row text {
+        fill: black;
+      }
+
+      .dc-chart g.pie-label-group text {
+        fill: black;
+      }
+
+      #range-line g.y {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <h2 class="title is-4 navbar-item">TOP DASHBOARD</h2>
+      </div>
+    </nav>
+    <div class="section">
+      <div class="columns">
+        <div class="column is-one-third">
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">CPU Usage of Process</p>
+            </header>
+            <div class="card-content">
+              <div class="content">
+                <div class="chart" id="process-cpu-row">
+                  <span class="reset" style="display: none;">Selected: <span class="filter" style = "font-size: 75%;"></span></span>
+                  <a class="reset" style="display: none;" href="javascript:processCpuRowChart.filterAll();dc.redrawAll();">Reset</a>
+                  <div class="clearfix"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-two-thirds">
+          <div class="columns">
+            <div class="column is-full">
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">CPU & Memory Usage</p>
+                </header>
+                <div class="card-content">
+                  <div class="chart" id="cpu-mem-line"></div>
+                  <div class="chart" id="range-line">
+                    <span class="reset" style="display: none;">Selected: <span class="filter" style = "font-size: 75%;"></span></span>
+                    <a class="reset" style="display: none;" href="javascript:cpuMemTimeseriesChart.filterAll();timeSeriesRangeChart.filterAll();dc.redrawAll();">Reset</a>
+                    <div class="clearfix"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column is-half">
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">Day-wise CPU Usage</p>
+                </header>
+                <div class="card-content">
+                  <div class="chart" id="weekday-row">
+                    <a class="reset" style="display: none;" href="javascript:weekDayRowChart.filterAll();dc.redrawAll();">Reset</a>
+                    <div class="clearfix"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="column is-half">
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">CPU Usage for Working Hours</p>
+                </header>
+                <div class="card-content">
+                  <div class="chart" id="working-hour-pie">
+                    <a class="reset" style="display: none;" href="javascript:workingHoursChart.filterAll();dc.redrawAll();">Reset</a>
+                    <div class="clearfix"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../charts/top_dashboard.js" charset="utf-8"></script>
+  </body>
+</html>

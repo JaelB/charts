@@ -2,7 +2,8 @@ d3 -> https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.js
 d3-tip -> https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.js
 dc -> https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.js
 dc css -> https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.css
+crossfilter2 -> https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.2/crossfilter.js
 c3 -> https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.15/c3.js
 c3 css -> https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.15/c3.css
 vue -> https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js
-bulma -> https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.css 
+bulma -> https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.css
