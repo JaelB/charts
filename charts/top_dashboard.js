@@ -79,8 +79,8 @@ d3.csv('https://raw.githubusercontent.com/JaelB/charts/master/data/top_data.csv'
     .title(d => [
       d.key,
       `Count: ${numberFormat(d.value.count)}`,
-      `CPU Usage: ${floatFormat(d.value.avgCpu)}`,
-      `Memory Usage: ${floatFormat(d.value.avgMem)}`
+      `CPU Usage: ${floatFormat(d.value.avgCpu)}%`,
+      `Memory Usage: ${floatFormat(d.value.avgMem)}%`
     ].join('\n'));
 
   cpuMemTimeseriesChart
@@ -111,8 +111,8 @@ d3.csv('https://raw.githubusercontent.com/JaelB/charts/master/data/top_data.csv'
     ])
     .title(d => [
       dateTimeFormatter(d.key),
-      `CPU Usage: ${floatFormat(d.value.avgCpu)}`,
-      `Memory Usage: ${floatFormat(d.value.avgMem)}`
+      `CPU Usage: ${floatFormat(d.value.avgCpu)}%`,
+      `Memory Usage: ${floatFormat(d.value.avgMem)}%`
     ].join('\n'));
 
   timeSeriesRangeChart
@@ -137,8 +137,8 @@ d3.csv('https://raw.githubusercontent.com/JaelB/charts/master/data/top_data.csv'
     .colors('#04E5C3')
     .title(d => [
       d.key.split('.')[1],
-      `CPU Usage: ${floatFormat(d.value.avgCpu)}`,
-      `Memory Usage: ${floatFormat(d.value.avgMem)}`
+      `CPU Usage: ${floatFormat(d.value.avgCpu)}%`,
+      `Memory Usage: ${floatFormat(d.value.avgMem)}%`
     ].join('\n'));
 
   workingHoursChart
@@ -151,8 +151,8 @@ d3.csv('https://raw.githubusercontent.com/JaelB/charts/master/data/top_data.csv'
     .valueAccessor(d => d.value.avgCpu)
     .title(d => [
       d.key,
-      `CPU Usage: ${floatFormat(d.value.avgCpu)}`,
-      `Memory Usage: ${floatFormat(d.value.avgMem)}`
+      `CPU Usage: ${floatFormat(d.value.avgCpu)}%`,
+      `Memory Usage: ${floatFormat(d.value.avgMem)}%`
     ].join('\n'));
 
   dc.renderAll();

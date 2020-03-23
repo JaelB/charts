@@ -12,3 +12,7 @@ List of charts:
 10. [dc.js] scatter plot with description on click
 11. [dc.js] generic timeseries chart with clickable legend with data
 12. [d3.js] guage with colorcoded description
+
+Dashboards
+1. Top-Dashboard with dc.js
+2. Level-Dashboard with c3.js

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Level Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.15/c3.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.2/crossfilter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.15/c3.js"></script>
+  </head>
+  <body>
+    <nav class="navbar is-info" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <h2 class="title is-4 navbar-item">Level Dashboard</h2>
+      </div>
+    </nav>
+    <div class="section">
+      <div class="columns">
+        <div class="column is-full">
+          <div class="box has-background-light">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <p class="subtitle is-5">
+                    <strong>Select ID</strong>
+                  </p>
+                </div>
+                <div class="level-item">
+                  <div class="field">
+                    <div class="control">
+                      <div class="select is-primary">
+                        <select id='ddms'></select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-half">
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">full data</p>
+            </header>
+            <div class="card-content">
+              <div class="content table-container" style="height: 250px; overflow-y: scroll;">
+                <div id='data-table'></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-half">
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">level1</p>
+            </header>
+            <div class="card-content">
+              <div class="content">
+                <div id='level-bar'></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-one-third">
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">sublevel1</p>
+            </header>
+            <div class="card-content">
+              <div class="content l1-chart">
+                <div id='l1-pie'></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-one-third">
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">sublevel2</p>
+            </header>
+            <div class="card-content">
+              <div class="content">
+                <div id='l2-pie'></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-one-third">
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">sublevel3</p>
+            </header>
+            <div class="card-content">
+              <div class="content">
+                <div id='l3-pie'></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      data = [{"id":"1","level":"l1","subLevel":"sl11","value":54},{"id":"1","level":"l1","subLevel":"sl12","value":89},{"id":"1","level":"l1","subLevel":"sl13","value":41},{"id":"1","level":"l1","subLevel":"sl14","value":69},{"id":"1","level":"l1","subLevel":"sl15","value":39},{"id":"1","level":"l2","subLevel":"sl21","value":53},{"id":"1","level":"l2","subLevel":"sl22","value":51},{"id":"1","level":"l2","subLevel":"sl23","value":28},{"id":"1","level":"l3","subLevel":"sl31","value":44},{"id":"1","level":"l3","subLevel":"sl32","value":38},{"id":"1","level":"l3","subLevel":"sl33","value":85},{"id":"1","level":"l3","subLevel":"sl34","value":51},{"id":"2","level":"l1","subLevel":"sl11","value":27},{"id":"2","level":"l1","subLevel":"sl12","value":82},{"id":"2","level":"l1","subLevel":"sl13","value":60},{"id":"2","level":"l1","subLevel":"sl14","value":44},{"id":"2","level":"l1","subLevel":"sl15","value":37},{"id":"2","level":"l2","subLevel":"sl21","value":55},{"id":"2","level":"l2","subLevel":"sl22","value":31},{"id":"2","level":"l2","subLevel":"sl23","value":98},{"id":"2","level":"l3","subLevel":"sl31","value":73},{"id":"2","level":"l3","subLevel":"sl32","value":50},{"id":"2","level":"l3","subLevel":"sl33","value":55},{"id":"2","level":"l3","subLevel":"sl34","value":24},{"id":"3","level":"l1","subLevel":"sl11","value":20},{"id":"3","level":"l1","subLevel":"sl12","value":86},{"id":"3","level":"l1","subLevel":"sl13","value":97},{"id":"3","level":"l1","subLevel":"sl14","value":47},{"id":"3","level":"l1","subLevel":"sl15","value":68},{"id":"3","level":"l2","subLevel":"sl21","value":28},{"id":"3","level":"l2","subLevel":"sl22","value":30},{"id":"3","level":"l2","subLevel":"sl23","value":22},{"id":"3","level":"l3","subLevel":"sl31","value":53},{"id":"3","level":"l3","subLevel":"sl32","value":51},{"id":"3","level":"l3","subLevel":"sl33","value":98},{"id":"3","level":"l3","subLevel":"sl34","value":20}];
+
+      var dataLabels = {
+        'id' : 'ID',
+        'level': 'Level',
+        'subLevel': 'Sub-Level',
+        'value': 'Value'
+      };
+
+      ids = data.map(d => d.id);
+      distinctIds = ids.filter(getUniqueArray);
+
+      distinctIds.forEach((d) => {
+        $('<option>').val(d).text(d).appendTo('#ddms');
+      })
+      $("#ddms").val(distinctIds[0]);
+      $('#ddms').on('change', function() {
+        prepareData(this.value);
+      });
+      prepareData(distinctIds[0]);
+
+      function prepareData(selectVal) {
+        data.forEach((d) => {
+          d.value = +d.value;
+        });
+
+        var filteredData = data.filter(d => d.id == selectVal);
+
+        var cf = crossfilter(filteredData);
+        var levelDim = cf.dimension(d => d.level);
+        var levelGrp = levelDim.group().reduceSum(d => +d.value);
+
+        var subLevelDim = cf.dimension(d => [d.level, d.subLevel]);
+        var subLevelGrp = subLevelDim.group().reduceSum(d => +d.value);
+
+        var barData = levelGrp.all();
+        var l1Data = preparePieData(subLevelGrp,'l1');
+        var l2Data = preparePieData(subLevelGrp,'l2');
+        var l3Data = preparePieData(subLevelGrp,'l3');
+
+        drawTable('#data-table', filteredData);
+        drawBarChart('#level-bar', barData);
+        drawPieChart('#l1-pie', l1Data);
+        drawPieChart('#l2-pie', l2Data);
+        drawPieChart('#l3-pie', l3Data);
+      }
+
+      function getUniqueArray(value, index, self) {
+          return self.indexOf(value) === index;
+      }
+
+      function preparePieData(group, level) {
+        var subLevData = group.all().filter(d => d.key[0] == level);
+        var pieData = [];
+        subLevData.forEach((d) => {
+          pieData.push([d.key[1], d.value]);
+        });
+        return pieData;
+      }
+
+      function drawPieChart(divId, data) {
+        var pieChart = c3.generate({
+            bindto: divId,
+            size: {
+              height: 300,
+              width: 300
+            },
+            data: {
+              columns: data,
+              type : 'pie'
+            },
+            legend: {
+              position: 'right'
+            },
+            pie: {
+              label: {
+                format: function (value, ratio, id) {
+                  return value;
+                }
+              }
+            },
+            tooltip: {
+              format: {
+                  title: function (d) { return d; },
+                  value: function (value, ratio, id) {
+                    return `${value} (${d3.format(',.1%')(ratio)})`;
+                }
+              }
+            }
+        });
+      }
+
+      function drawBarChart(divId, data) {
+        var barChart = c3.generate({
+          bindto: divId,
+          size: {
+            height: 250
+          },
+          data: {
+            json: data,
+            keys: {
+              x: 'key',
+              value: ['value'],
+            },
+            type: 'bar',
+          },
+          legend: {
+            show: false
+          },
+          axis: {
+            rotated: true,
+            x: {
+              type: 'category'
+            }
+          }
+        });
+      }
+
+      function drawTable(divId, data) {
+        d3.select(divId).html('');
+        var numberFormat = d3.format(',');
+        var table = d3.select(divId)
+                      .append('table')
+                      .attr('class','table is-bordered is-narrow is-hoverable is-fullwidth');
+
+        var titles = d3.keys(data[0]).filter(d => d != 'id');
+        var headers = table.append('thead').append('tr')
+                           .selectAll('th')
+                           .data(titles).enter()
+                           .append('th')
+                           .attr('class', 'has-background-info has-text-white')
+                           .style('text-align', 'center')
+                           .text(d => dataLabels[d]);
+
+        var rows = table.append('tbody');
+        var nestedData = d3.nest()
+                           .key(d => d.level)
+                           .entries(data);
+
+        nestedData.forEach((d) => {
+          var rowSpan = d.values.length;
+          d.values.forEach((value, index) => {
+            var tr = rows.append('tr');
+            if( index == 0 ) {
+              tr.append("td")
+                .attr("rowspan", rowSpan)
+                .text(value.level);
+            }
+            tr.append('td')
+              .text(value.subLevel);
+            tr.append('td')
+              .text(numberFormat(value.value))
+              .style('text-align', 'right');
+          })
+        });
+      }
+    </script>
+  </body>
+</html>
