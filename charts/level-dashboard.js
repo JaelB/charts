@@ -4,7 +4,7 @@ dataLabels = {
   'subLevel': 'Sub-Level',
   'value': 'Value'
 };
-d3.json('https://raw.githubusercontent.com/JaelB/charts/master/data/level-data.json').then((data) => {
+d3.json('../data/level-data.json').then((data) => {
 
   ids = data.map(d => d.id);
   distinctIds = ids.filter(getUniqueArray);

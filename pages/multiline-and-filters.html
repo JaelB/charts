@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <title>[dc + vue] Multiline with filters</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-slider-component@3.1.1/theme/default.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue-slider-component@3.1.1/dist/vue-slider-component.umd.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
+    <script src="https://unpkg.com/vue-multiselect@2.1.0"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.5.2/crossfilter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/3.2.1/dc.js"></script>
+
+    <style>
+      #temp-range-chart g.y {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar is-primary" role="navigation">
+      <div class="navbar-center navbar-brand">
+        <h2 class="title is-4 navbar-item">Domestic Temperature Monitoring - EDA</h2>
+      </div>
+    </nav>
+    <div id="app">
+      <div class="section">
+        <div class="level">
+          <div class="columns">
+            <div class="column is-3">
+              <div class="column"></div>
+              <div class="box custom">
+                <div class="field">
+                  <label class="label">Rooms to monitor</label>
+                  <div class="control">
+                    <label class="radio">
+                      <input type="radio"
+                             name="temp"
+                             value="temp"
+                             v-model="filters.type"
+                             v-on:change="onTypeChange" checked>
+                      Temperature
+                    </label>
+                    <label class="radio">
+                      <input type="radio"
+                             name="humidity"
+                             value="humidity"
+                             v-model="filters.type"
+                             v-on:change="onTypeChange">
+                      Humidity
+                    </label>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Day of the week</label>
+                  <div class="select">
+                    <select v-model="filters.weekDay">
+                      <option v-for = "week in weekDays"
+                              :value = "week" :key = "week">{{ weekDayNames(week) }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Wind Speed:
+                    <span class="has-text-primary">{{wind.value[0]}} to {{wind.value[1]}}</span>
+                  </label>
+                  <div class="control">
+                    <vue-slider
+                      v-model = 'wind.value'
+                      :min = 'wind.min'
+                      :max = 'wind.max'
+                      :process-style="{ 'backgroundColor': '#00D1B2' }"
+                      @drag-end="onWindChange"
+                    ></vue-slider>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="column is-1"></div>
+            <div class="column is-8">
+              <div id="temp-multiline-timeseries" ref="tempMonitorComposite"></div>
+              <div id="temp-range-chart" ref="tempMonitorRange"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const dateParser = d3.timeParse('%d-%m-%Y %H:%M'); //  13-03-2012 15:00
+      const tempMonitor = {
+        data: null,
+        dateTimeDimension: null,
+        startDate: null,
+        endDate: null,
+        windDimension: null,
+        weekdayDimension: null,
+        group: null,
+        compositeChart: null,
+        seriesChart: null,
+        chartGroup: 'temp-humidity'
+      };
+      const display = {
+        'dining_room' : 'Dining Room',
+        'living_room' : 'Living Room',
+        'dining_room_temp' : 'Dining Room Temperature (°C)',
+        'living_room_temp' : 'Living Room Temperature (°C)',
+        'dining_room_humidity' : 'Dining Room Relative Humidity (%)',
+        'living_room_humidity' : 'Living Room Relative Humidity (%)',
+        'outdoor_temp' : 'Outdoor Temperature (°C)',
+        'outdoor_humidity' : 'Potdoor Relative Humidity (%)',
+        'wind' : 'Wind (m/s)',
+        'precipitacion' : 'Proportion of Rain in last 15 minutes',
+        'dinning_room_CO2' : 'Dining Room CO2 (ppm)',
+        'living_room_CO2' : 'Living Room CO2 (ppm)',
+        'temp': 'Temperature (°C)',
+        'humidity': 'Humidity (%)'
+      };
+
+      new Vue({
+        el: '#app',
+        components: {
+          VueSlider: window['vue-slider-component'],
+          Multiselect: window.VueMultiselect.default
+        },
+        data() {
+          return {
+            data: null,
+            wind: {
+              min: 0, // default values on page load to avoid error
+              max: 5, // default values on page load to avoid error
+              range: null,
+              value: [],
+            },
+            weekDays: [],
+            weekDayNames: null,
+            filters: {
+              weekDay : 0,
+              type: 'temp',
+            }
+          }
+        },
+
+        created() {
+          d3.json('../data/domestic_temp_monitoring.json').then((data) => {
+            this.data = data;
+            this.prepareWeekNames();
+            this.getWindRange();
+            this.initChart();
+          });
+        },
+        methods: {
+          prepareWeekNames() {
+            let weekdays_full = this.data.map(d => d.Day_Of_Week);
+            this.weekDays = weekdays_full.filter(this.onlyUnique);
+            this.weekDays.push(0);
+            this.weekDayNames = d3.scaleOrdinal()
+                                  .domain([0, 1, 2, 3, 4, 5, 6, 7])
+                                  .range(['All', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+          },
+          getWindRange() {
+            this.wind.range = d3.extent(this.data.map(d => d.wind)).map(this.returnInt);
+            this.wind.min = this.wind.range[0];
+            this.wind.max = this.wind.range[1]+1;
+            this.wind.value = [this.wind.min, this.wind.max]
+          },
+          initChart() {
+            this.prepareChartData();
+            this.drawChart('temp');
+            dc.renderAll();
+          },
+          prepareChartData() {
+            tempMonitor.data = crossfilter(this.data);
+            tempMonitor.dateTimeDimension = tempMonitor.data.dimension(d => dateParser(d.DateTime));
+            tempMonitor.windDimension = tempMonitor.data.dimension(d => +d.wind);
+            tempMonitor.weekdayDimension = tempMonitor.data.dimension(d => d.Day_Of_Week);
+            tempMonitor.startDate = dateParser(tempMonitor.dateTimeDimension.bottom(1)[0].DateTime);
+            tempMonitor.endDate = dateParser(tempMonitor.dateTimeDimension.top(1)[0].DateTime);
+            tempMonitor.group = tempMonitor.dateTimeDimension.group().reduce(
+              (p, v) => {
+                p.weekDay = v.Day_Of_Week;
+                p.dining_room_temp += +v.dining_room_temp;
+                p.living_room_temp += +v.living_room_temp;
+                p.outdoor_temp += +v.outdoor_temp;
+                p.forecast_temp += +v.forecast_temp;
+                p.dining_room_humidity += +v.dining_room_humidity;
+                p.living_room_humidity += +v.living_room_humidity;
+                p.outdoor_humidity += +v.outdoor_humidity;
+                return p;
+              },
+              (p, v) => {
+                p.dining_room_temp -= +v.dining_room_temp;
+                p.living_room_temp -= +v.living_room_temp;
+                p.outdoor_temp -= +v.outdoor_temp;
+                p.forecast_temp -= +v.forecast_temp;
+                p.dining_room_humidity -= +v.dining_room_humidity;
+                p.living_room_humidity -= +v.living_room_humidity;
+                p.outdoor_humidity -= +v.outdoor_humidity;
+                return p;
+              },
+              () => ({
+                dining_room_temp: 0.0,
+                living_room_temp: 0.0,
+                outdoor_temp: 0.0,
+                forecast_temp: 0.0,
+                dining_room_humidity: 0.0,
+                living_room_humidity: 0.0,
+                outdoor_humidity: 0.0,
+              }),
+            );
+          },
+          drawChart(type) {
+            console.log(`drawChart(${type})`);
+            tempMonitor.compositeChart = dc.compositeChart('#temp-multiline-timeseries');
+            tempMonitor.seriesChart = dc.seriesChart('#temp-range-chart');
+            tempMonitor.compositeChart
+              .width(800)
+              .height(300)
+              .margins({ top: 40, right: 30, bottom: 90, left: 30 })
+              .x(d3.scaleTime().domain([tempMonitor.startDate, tempMonitor.endDate]))
+              .elasticY(true)
+              .yAxisLabel(display[type])
+              .legend(dc.legend().x(100).horizontal(true).itemWidth(150).legendWidth(670))
+              .renderHorizontalGridLines(true)
+              .renderTitle(true)
+              .mouseZoomable(true)
+              .brushOn(false)
+              .rangeChart(tempMonitor.seriesChart)
+              .compose([
+                dc.lineChart(tempMonitor.compositeChart)
+                  .dimension(tempMonitor.dateTimeDimension)
+                  .group(tempMonitor.group, 'Dining Room')
+                  .valueAccessor(d => d.value[`dining_room_${type}`])
+                  .colors('#f77507'),
+                dc.lineChart(tempMonitor.compositeChart)
+                  .dimension(tempMonitor.dateTimeDimension)
+                  .group(tempMonitor.group, 'Living Room')
+                  .valueAccessor(d => d.value[`living_room_${type}`])
+                  .colors('#9c27b0'),
+                dc.lineChart(tempMonitor.compositeChart)
+                  .dimension(tempMonitor.dateTimeDimension)
+                  .group(tempMonitor.group, 'Outdoor')
+                  .valueAccessor(d => d.value[`outdoor_${type}`])
+                  .colors('#2196f3'),
+              ]);
+
+            tempMonitor.compositeChart.on('pretransition.hideshow', this.legendToggle)
+            tempMonitor.compositeChart.xAxis().tickFormat(d3.timeFormat('%d %b - %I %p'));
+            tempMonitor.compositeChart.on('renderlet', (chart) => {
+              chart.selectAll('g.x text')
+                   .attr('transform', 'translate(-25,25) rotate(315)');
+            });
+
+            tempMonitor.seriesChart
+              .width(800)
+              .height(120)
+              .margins({ top: 0, right: 30, bottom: 90, left: 45 })
+              .x(d3.scaleTime().domain([tempMonitor.startDate, tempMonitor.endDate]))
+              .brushOn(true)
+              .dimension(tempMonitor.dateTimeDimension)
+              .group(tempMonitor.group)
+              .seriesAccessor(d => d.value.weekDay)
+              .valueAccessor(d => d.value[`outdoor_${type}`]);
+
+            tempMonitor.seriesChart.xAxis().tickFormat(d3.timeFormat('%d %b - %I %p'));
+            tempMonitor.seriesChart.on('renderlet', (chart) => {
+              chart.selectAll('g.x text')
+                   .attr('transform', 'translate(-25,25) rotate(315)');
+            });
+          },
+          onTypeChange() {
+            console.log(this.filters.type);
+            this.drawChart(this.filters.type);
+            dc.renderAll();
+          },
+          applyWindFilter() {
+            console.log(this.wind.value);
+            if (this.wind.value[0] >= this.wind.min ||
+               this.wind.value[1] <= this.wind.max) {
+                 tempMonitor.windDimension.filter(this.wind.value);
+               } else {
+                 tempMonitor.windDimension.filterAll();
+               }
+          },
+          onWindChange() {
+            this.applyWindFilter();
+            dc.redrawAll();
+          },
+          applyWeekdayFilter() {
+            console.log(this.filters.weekDay);
+            if (this.filters.weekDay !== 0) {
+              tempMonitor.weekdayDimension.filter(this.filters.weekDay);
+            } else {
+              tempMonitor.weekdayDimension.filterAll();
+            }
+          },
+          onWeekdayChange() {
+            this.applyWeekdayFilter();
+            dc.redrawAll();
+          },
+          onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+          },
+          returnInt(element) {
+            return parseInt(element, 10);
+          },
+          drawLegendToggles(chart) {
+            chart.selectAll('g.dc-legend .dc-legend-item')
+              .style('opacity', (d, i) => {
+                const subchart = chart.select(`g.sub._${i}`);
+                const visible = subchart.style('visibility') !== 'hidden';
+                return visible ? 1 : 0.2;
+              });
+          },
+          legendToggle(chart) {
+            chart.selectAll('g.dc-legend .dc-legend-item')
+              .on('click.hideshow', (d, i) => {
+                const subchart = chart.select(`g.sub._${i}`);
+                const visible = subchart.style('visibility') !== 'hidden';
+                subchart.style('visibility', () => (visible ? 'hidden' : 'visible'));
+                this.drawLegendToggles(chart);
+              });
+            this.drawLegendToggles(chart);
+          }
+        },
+        watch: {
+          ['filters.weekDay']() {
+            this.$nextTick(() => {
+              this.onWeekdayChange();
+            });
+          },
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+multi-line chart with filters
+-----------------------------
+https://archive.ics.uci.edu/ml/datasets/SML2010
+xaxis --> DateTime
+yaxis/lines --> dining_room_temp, living_room_temp, dining_room_humidity, living_room_humidity, outdoor_temp, outdoor_humidity, forecast_temp
+temperature, humidity -> radio button
+wind, precipitacion --> sliders
+Day_Of_Week -> dropdown

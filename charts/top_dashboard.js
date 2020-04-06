@@ -10,7 +10,7 @@ var floatFormat = d3.format(',.2f');
 var numberFormat = d3.format(',');
 
 
-d3.csv('https://raw.githubusercontent.com/JaelB/charts/master/data/top_data.csv').then((data) => {
+d3.csv('../data/top_data.csv').then((data) => {
   data.forEach((d) => {
     d.timestamp = dateTimeParser(d.Timestamp);
   });
