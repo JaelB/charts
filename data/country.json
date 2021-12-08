@@ -1,0 +1,52 @@
+[
+  {
+    "Country": "United States",
+    "Region": "north america",
+    "Value": 12394
+  },
+  {
+    "Country": "Russia",
+    "Region": "europe",
+    "Value": 6148
+  },
+  {
+    "Country": "Germany (FRG)",
+    "Region": "europe",
+    "Value": 1653
+  },
+  {
+    "Country": "France",
+    "Region": "europe",
+    "Value": 2162
+  },
+  {
+    "Country": "United Kingdom",
+    "Region": "europe",
+    "Value": 1214
+  },
+  {
+    "Country": "China",
+    "Region": "asia",
+    "Value": 1131
+  },
+  {
+    "Country": "Spain",
+    "Region": "europe",
+    "Value": 814
+  },
+  {
+    "Country": "Netherlands",
+    "Region": "europe",
+    "Value": 1167
+  },
+  {
+    "Country": "Italy",
+    "Region": "europe",
+    "Value": 660
+  },
+  {
+    "Country": "Israel",
+    "Region": "middleeast",
+    "Value": 1263
+  }
+]
